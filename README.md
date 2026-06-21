@@ -4,16 +4,19 @@
 [![Shiny for Python](https://img.shields.io/badge/Shiny_for_Python-0.10%2B-blueviolet)](https://shiny.posit.co/py/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Dashboard interativo desenvolvido com **Shiny for Python** para análise estatística de dados, como atividade avaliativa da disciplina de Estatística Aplicada a Análise de Dados — Universidade Federal Rural de Pernambuco (UFRPE).
----
+Dashboard interativo desenvolvido com **Shiny for Python** para análise estatística de dados, como atividade avaliativa da disciplina de Estatística — Universidade Federal Rural de Pernambuco (UFRPE).
 
-## 🎥 Vídeo Explicativo
-
-🔗 [Link do YouTube](https://www.youtube.com/watch?v=aATMCj8k5wk)
+**Autor:** Caio César Farias da Silva — UFRPE
 
 ---
 
-## Funcionalidades
+## 🎥 Demonstração
+
+🔗 [Assistir no YouTube](https://www.youtube.com/watch?v=aATMCj8k5wk)
+
+---
+
+## ✨ Funcionalidades
 
 ### 01 — Análise Descritiva
 - Upload de arquivo CSV pelo usuário
@@ -76,7 +79,7 @@ shiny run app.py
 ## 🗃️ Datasets utilizados
 
 ### 🌸 Iris
-Dataset clássico que contém medidas morfológicas de 150 flores de íris — comprimento e largura de sépalas e pétalas — distribuídas em três espécies: *Iris setosa*, *Iris versicolor* e *Iris virginica*. Utilizado na aba de **Análise Descritiva**.
+Dataset clássico introduzido por Ronald Fisher em 1936. Contém medidas morfológicas de 150 flores de íris — comprimento e largura de sépalas e pétalas — distribuídas em três espécies: *Iris setosa*, *Iris versicolor* e *Iris virginica*. Utilizado na aba de **Análise Descritiva**.
 
 🔗 [Kaggle — Iris Dataset](https://www.kaggle.com/datasets/uciml/iris)
 
@@ -113,6 +116,8 @@ A redução para 800 observações foi necessária para tornar os resultados do 
 Reúne dados censitários de distritos residenciais do estado da Califórnia, coletados no censo de 1990. Cada linha representa um distrito e traz informações como número de cômodos, número de quartos, população, número de domicílios, renda mediana e valor mediano dos imóveis. Utilizado nas abas de **Intervalo de Confiança** e **Regressão Linear**.
 
 🔗 [Kaggle — California Housing Prices](https://www.kaggle.com/datasets/camnugent/california-housing-prices)
+
+
 ---
 
 ## 📄 Licença
