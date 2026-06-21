@@ -4,14 +4,7 @@
 [![Shiny for Python](https://img.shields.io/badge/Shiny_for_Python-0.10%2B-blueviolet)](https://shiny.posit.co/py/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Dashboard interativo desenvolvido com **Shiny for Python** para análise estatística de dados, como atividade avaliativa da disciplina de Estatística — Universidade Federal Rural de Pernambuco (UFRPE).
----
-
-## 👤 Autor
-
-**Caio César Farias da Silva**
-Universidade Federal Rural de Pernambuco — UFRPE
-
+Dashboard interativo desenvolvido com **Shiny for Python** para análise estatística de dados, como atividade avaliativa da disciplina de Estatística Aplicada a Análise de Dados — Universidade Federal Rural de Pernambuco (UFRPE).
 ---
 
 ## 🎥 Vídeo Explicativo
