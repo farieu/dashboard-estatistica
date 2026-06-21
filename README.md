@@ -81,7 +81,7 @@ shiny run app.py
 ## 🗃️ Datasets utilizados
 
 ### 🌸 Iris
-Dataset clássico introduzido por Ronald Fisher em 1936. Contém medidas morfológicas de 150 flores de íris — comprimento e largura de sépalas e pétalas — distribuídas em três espécies: *Iris setosa*, *Iris versicolor* e *Iris virginica*. Utilizado na aba de **Análise Descritiva**.
+Dataset clássico que contém medidas morfológicas de 150 flores de íris — comprimento e largura de sépalas e pétalas — distribuídas em três espécies: *Iris setosa*, *Iris versicolor* e *Iris virginica*. Utilizado na aba de **Análise Descritiva**.
 
 🔗 [Kaggle — Iris Dataset](https://www.kaggle.com/datasets/uciml/iris)
 
