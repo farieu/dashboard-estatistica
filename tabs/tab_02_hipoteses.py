@@ -1,6 +1,6 @@
 # ============================================================
 #  Aba 02 — Teste de Hipóteses (Z, variância conhecida)
-#  Dataset: Pima Indians Diabetes
+#  Dataset: Body Performance
 # ============================================================
 
 import numpy as np
@@ -12,6 +12,20 @@ from scipy import stats
 from shiny import ui, render, reactive
 
 from styles import COR_PRIMARIA, COR_ACCENT, COR_FUNDO, COR_TEXTO, COR_BORDA, COR_CARD
+
+# ── Legenda das colunas do Body Performance ──────────────────
+LEGENDA_COLUNAS = {
+    "age":                   "Idade (anos)",
+    "height_cm":             "Altura (cm)",
+    "weight_kg":             "Peso (kg)",
+    "body fat_%":            "Percentual de gordura corporal (%)",
+    "diastolic":             "Pressão arterial diastólica (mmHg)",
+    "systolic":              "Pressão arterial sistólica (mmHg)",
+    "gripForce":             "Força de preensão manual (kgf)",
+    "sit and bend forward_cm": "Flexibilidade — sentar e alcançar (cm)",
+    "sit-ups counts":        "Número de abdominais realizados (reps)",
+    "broad jump_cm":         "Salto em distância (cm)",
+}
 
 # ── UI da aba ────────────────────────────────────────────────
 tab_ui = ui.nav_panel(
@@ -38,14 +52,23 @@ tab_ui = ui.nav_panel(
                 choices={"": "— carregue um arquivo —"},
             ),
 
-            # Disclaimer 1 — distribuição normal
+            # Variância — toggle automático / manual
+            ui.tags.label("Variância populacional (σ²)"),
+            ui.input_radio_buttons(
+                "modo_variancia",
+                label=None,
+                choices={
+                    "auto":   "Calcular automaticamente da amostra",
+                    "manual": "Informar manualmente",
+                },
+                selected="auto",
+            ),
+            ui.output_ui("campo_variancia"),
+
+            # Disclaimer variância e distribuição
             ui.div(
-                ui.tags.p("ℹ️ Distribuição utilizada", style="font-weight:700; font-size:0.78rem; margin-bottom:4px;"),
-                ui.tags.p(
-                    "Como a variância populacional é assumida conhecida, "
-                    "o teste utiliza a distribuição Normal (Z), não a t de Student.",
-                    style="font-size:0.76rem; line-height:1.4; margin:0;"
-                ),
+                ui.tags.p("ℹ️ Variância e distribuição", style="font-weight:700; font-size:0.78rem; margin-bottom:4px;"),
+                ui.output_ui("disclaimer_variancia"),
                 style="""
                     background:#EAF4F1; border:1px solid #C2DDD7;
                     border-left:3px solid #2E7D6B; border-radius:6px;
@@ -53,30 +76,21 @@ tab_ui = ui.nav_panel(
                 """
             ),
 
-            # Disclaimer 2 — valores clínicos de referência
+            # Disclaimer referências μ₀
             ui.div(
-                ui.tags.p("📋 Referências clínicas (μ₀)", style="font-weight:700; font-size:0.78rem; margin-bottom:6px;"),
+                ui.tags.p("📋 Referências para μ₀", style="font-weight:700; font-size:0.78rem; margin-bottom:6px;"),
                 ui.tags.table(
                     ui.tags.tr(
-                        ui.tags.th("Variável", style="text-align:left; padding-right:8px;"),
+                        ui.tags.th("Variável",    style="text-align:left; padding-right:8px;"),
                         ui.tags.th("μ₀ sugerido", style="text-align:left;"),
                     ),
-                    ui.tags.tr(
-                        ui.tags.td("Glucose"),
-                        ui.tags.td("100 mg/dL"),
-                    ),
-                    ui.tags.tr(
-                        ui.tags.td("BloodPressure"),
-                        ui.tags.td("80 mmHg"),
-                    ),
-                    ui.tags.tr(
-                        ui.tags.td("BMI"),
-                        ui.tags.td("25 kg/m²"),
-                    ),
-                    ui.tags.tr(
-                        ui.tags.td("Age"),
-                        ui.tags.td("33 anos"),
-                    ),
+                    ui.tags.tr(ui.tags.td("age"),                    ui.tags.td("36 anos")),
+                    ui.tags.tr(ui.tags.td("body fat_%"),             ui.tags.td("25 %")),
+                    ui.tags.tr(ui.tags.td("systolic"),               ui.tags.td("120 mmHg")),
+                    ui.tags.tr(ui.tags.td("diastolic"),              ui.tags.td("80 mmHg")),
+                    ui.tags.tr(ui.tags.td("gripForce"),              ui.tags.td("36 kgf")),
+                    ui.tags.tr(ui.tags.td("sit-ups counts"),         ui.tags.td("30 reps")),
+                    ui.tags.tr(ui.tags.td("broad jump_cm"),          ui.tags.td("170 cm")),
                     style="font-size:0.75rem; border-collapse:collapse; width:100%;"
                 ),
                 style="""
@@ -84,15 +98,6 @@ tab_ui = ui.nav_panel(
                     border-left:3px solid #F4A261; border-radius:6px;
                     padding:10px 12px; color:#7A4A1E;
                 """
-            ),
-
-            ui.tags.label("Variância populacional (σ²)"),
-            ui.input_numeric(
-                "variancia",
-                label=None,
-                value=100,
-                min=0.01,
-                step=1,
             ),
 
             ui.tags.label("Tipo de teste"),
@@ -128,6 +133,7 @@ tab_ui = ui.nav_panel(
 
         # Conteúdo
         ui.div(
+            ui.output_ui("legenda_colunas"),
             ui.output_ui("conteudo_hipoteses"),
             class_="content-area"
         ),
@@ -149,16 +155,96 @@ def tab_server(input, output, session):
         import pandas as pd
         return pd.read_csv(f[0]["datapath"])
 
-    # Atualiza seletor — exclui Id e Outcome (binária)
+    # Atualiza seletor — exclui colunas não numéricas (gender, class)
     @reactive.effect
     def _atualiza_select_h():
         df = dados_h()
         if df is None:
             return
         numericas = df.select_dtypes(include=[np.number]).columns.tolist()
-        excluir   = {"id", "outcome"}
+        excluir   = {"id"}
         numericas = [c for c in numericas if c.lower() not in excluir]
         ui.update_select("variavel_h", choices={c: c for c in numericas})
+
+    # Legenda das colunas — só aparece se o arquivo for bodyPerformance.csv
+    @output
+    @render.ui
+    def legenda_colunas():
+        f = input.arquivo_h()
+        if not f:
+            return ui.div()
+        nome = f[0]["name"].lower().replace(" ", "").replace("-", "").replace("_", "")
+        if "bodyperformance" not in nome:
+            return ui.div()
+        return ui.div(
+            ui.tags.p("📖 Legenda das variáveis — Body Performance",
+                      style="font-weight:700; font-size:0.85rem; margin-bottom:10px;"),
+            ui.div(
+                *[
+                    ui.div(
+                        ui.tags.span(col,  style="font-weight:600; font-size:0.78rem; display:block; color:#1A3D35;"),
+                        ui.tags.span(desc, style="font-size:0.75rem; color:#3B5A52;"),
+                        style="padding:6px 10px; border-right:0.5px solid #C2DDD7; min-width:130px;"
+                    )
+                    for col, desc in LEGENDA_COLUNAS.items()
+                ],
+                style="display:flex; flex-wrap:wrap; gap:0;"
+            ),
+            style="""
+                background:#F0F7F5; border:1px solid #C2DDD7;
+                border-left:4px solid #2E7D6B; border-radius:8px;
+                padding:14px 16px; margin-bottom:16px; color:#2E5D52;
+            """
+        )
+
+    # Campo de variância — aparece só no modo manual
+    @output
+    @render.ui
+    def campo_variancia():
+        if input.modo_variancia() == "manual":
+            return ui.input_numeric(
+                "variancia_manual",
+                label=None,
+                value=100.0,
+                min=0.0001,
+                step=0.01,
+            )
+        return ui.div()
+
+    # Disclaimer dinâmico — muda conforme o modo
+    @output
+    @render.ui
+    def disclaimer_variancia():
+        df  = dados_h()
+        col = input.variavel_h()
+        if input.modo_variancia() == "auto":
+            if df is not None and col and col in df.columns:
+                var_calc = float(df[col].dropna().var())
+                return ui.tags.p(
+                    f"A variância é calculada automaticamente da variável selecionada "
+                    f"(σ² = {var_calc:.4f}). O teste utiliza a distribuição Normal (Z), "
+                    f"assumindo variância conhecida.",
+                    style="font-size:0.76rem; line-height:1.4; margin:0;"
+                )
+            return ui.tags.p(
+                "A variância será calculada automaticamente ao carregar o arquivo e "
+                "selecionar a variável. O teste utiliza a distribuição Normal (Z).",
+                style="font-size:0.76rem; line-height:1.4; margin:0;"
+            )
+        return ui.tags.p(
+            "Você está informando a variância manualmente. Certifique-se de usar "
+            "o valor populacional (σ²) correto. O teste utiliza a distribuição Normal (Z).",
+            style="font-size:0.76rem; line-height:1.4; margin:0;"
+        )
+
+    # Resolve sigma2 conforme o modo escolhido
+    def _resolve_sigma2(serie):
+        if input.modo_variancia() == "auto":
+            return float(serie.var())
+        val = input.variancia_manual() if hasattr(input, "variancia_manual") else None
+        if val is None or val <= 0:
+            return float(serie.var())
+        return float(val)
 
     # Slider de μ₀ dinâmico — ajusta ao min/max da variável selecionada
     @output
@@ -203,11 +289,12 @@ def tab_server(input, output, session):
         serie       = df[col].dropna()
         n           = len(serie)
         media       = float(serie.mean())
-        sigma2      = float(input.variancia())
+        sigma2      = _resolve_sigma2(serie)
         sigma       = np.sqrt(sigma2)
         mu0         = float(input.mu0())
         alpha       = float(input.alpha())
         tipo        = input.tipo_teste()
+        modo        = input.modo_variancia()
 
         # Estatística Z
         erro_padrao = sigma / np.sqrt(n)
@@ -236,6 +323,7 @@ def tab_server(input, output, session):
         decisao     = "Rejeitar H₀" if rejeita else "Não rejeitar H₀"
         cor_decisao = "#C0392B" if rejeita else "#27AE60"
         icone_dec   = "✗" if rejeita else "✓"
+        origem_var  = "calculada da amostra" if modo == "auto" else "informada manualmente"
 
         return ui.div(
             # Info do dataset
@@ -272,7 +360,7 @@ def tab_server(input, output, session):
                 ui.div(
                     ui.tags.span("PARÂMETROS", class_="vbox-label"),
                     ui.tags.p(
-                        f"σ² = {sigma2}  |  σ = {sigma:.4f}",
+                        f"σ² = {sigma2:.4f}  |  σ = {sigma:.4f}  ({origem_var})",
                         style="margin:6px 0 2px; font-size:0.95rem;"
                     ),
                     ui.tags.p(
@@ -290,8 +378,8 @@ def tab_server(input, output, session):
 
             # Value boxes
             ui.div(
-                _vbox2("Média amostral (x̄)", f"{media:.4f}",   False),
-                _vbox2("Estatística Z",        f"{z_calc:.4f}", False),
+                _vbox2("Média amostral (x̄)", f"{media:.4f}",    False),
+                _vbox2("Estatística Z",        f"{z_calc:.4f}",  False),
                 _vbox2("Valor-p",              f"{p_valor:.4f}", False),
                 class_="vbox-row"
             ),
@@ -342,7 +430,7 @@ def tab_server(input, output, session):
         serie       = df[col].dropna()
         n           = len(serie)
         media       = float(serie.mean())
-        sigma2      = float(input.variancia())
+        sigma2      = _resolve_sigma2(serie)
         sigma       = np.sqrt(sigma2)
         mu0         = float(input.mu0())
         alpha       = float(input.alpha())
