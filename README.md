@@ -5,11 +5,13 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 Dashboard interativo desenvolvido com **Shiny for Python** para análise estatística de dados, como atividade avaliativa da disciplina de Estatística — Universidade Federal Rural de Pernambuco (UFRPE).
+---
 
 ## 👤 Autor
 
 **Caio César Farias da Silva**
 Universidade Federal Rural de Pernambuco — UFRPE
+
 ---
 
 ## 🎥 Vídeo Explicativo
