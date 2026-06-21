@@ -6,15 +6,19 @@
 
 Dashboard interativo desenvolvido com **Shiny for Python** para análise estatística de dados, como atividade avaliativa da disciplina de Estatística — Universidade Federal Rural de Pernambuco (UFRPE).
 
+## 👤 Autor
+
+**Caio César Farias da Silva**
+Universidade Federal Rural de Pernambuco — UFRPE
 ---
 
-## 🎥 Demonstração
+## 🎥 Vídeo Explicativo
 
-🔗 [Assistir no YouTube](https://www.youtube.com/watch?v=aATMCj8k5wk)
+🔗 [Link do YouTube](https://www.youtube.com/watch?v=aATMCj8k5wk)
 
 ---
 
-## ✨ Funcionalidades
+## Funcionalidades
 
 ### 01 — Análise Descritiva
 - Upload de arquivo CSV pelo usuário
@@ -114,16 +118,6 @@ A redução para 800 observações foi necessária para tornar os resultados do 
 Reúne dados censitários de distritos residenciais do estado da Califórnia, coletados no censo de 1990. Cada linha representa um distrito e traz informações como número de cômodos, número de quartos, população, número de domicílios, renda mediana e valor mediano dos imóveis. Utilizado nas abas de **Intervalo de Confiança** e **Regressão Linear**.
 
 🔗 [Kaggle — California Housing Prices](https://www.kaggle.com/datasets/camnugent/california-housing-prices)
-
-> O dataset possui 207 valores ausentes na coluna `total_bedrooms`. Esses valores são tratados automaticamente com `na.rm = TRUE` nas operações estatísticas.
-
----
-
-## 👤 Autor
-
-**Caio César Farias da Silva**
-Universidade Federal Rural de Pernambuco — UFRPE
-
 ---
 
 ## 📄 Licença
